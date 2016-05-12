@@ -1,0 +1,70 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="Vanilla javascript plugin for building nice responsive timetables">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RISE 2016 Timetable</title>
+    <link rel="stylesheet" href="styles/timetablejs.css">
+    <link rel="stylesheet" href="styles/demo.css">
+</head>
+
+<body>
+    <div style="position: absolute; right: 0; padding-right: 5px; z-index: 999">
+        <a href="http://thomastong.me" target="_blank">Made with &hearts; by Thomas</a>,
+        <a href="https://riseconf.com/schedule" target="_blank">Src:RISE</a>
+    </div>
+    <div style="position: absolute">
+        <h2>RISE 2016 Timetable</h2>
+        <a href="#" onclick="refresh(0);">May 31</a>
+        <a href="#" onclick="refresh(1);">Jun 1</a>
+        <a href="#" onclick="refresh(2);">Jun 2</a>
+    </div>
+    <div class="timetable">Loading...</div>
+    <script src="scripts/timetable.min.js"></script>
+    <script src="https://code.jquery.com/jquery-2.2.3.min.js" integrity="sha256-a23g1Nt4dtEYOj7bR+vTu7+T8VP13humZFBJNIYoEJo=" crossorigin="anonymous"></script>
+    <script>
+    var data = null;
+    var locations = null;
+
+    function refresh(daydiff) {
+        if (!data) {
+            $.get("http://api.cilabs.net/v1/conferences/rise16/timeslots", function(result) {
+                data = result;
+                refresh(daydiff);
+            });
+        } else {
+            var timetable = new Timetable();
+            timetable.setScope(9, 17);
+
+            if (!locations) {
+                locations = data.reduce(function(prev, curr) {
+                    var name = curr.location.name;
+                    var found = $.inArray(name, prev);
+                    if (found < 0) prev.push(name);
+                    return prev;
+                }, []);
+            }
+
+            timetable.addLocations(locations);
+            var firstDate = new Date(2016, 5 - 1, 31);
+
+            data.forEach(function(each) {
+                var eachDate = new Date(each.start_time);
+                if (Math.floor((eachDate - firstDate) / 86400000) === daydiff) {
+                    if (!each.title.match(/lunch/i)) {
+                        timetable.addEvent(each.title, each.location.name, eachDate, new Date(each.end_time));
+                    }
+                }
+            });
+
+            var renderer = new Timetable.Renderer(timetable);
+            renderer.draw('.timetable');
+        }
+    }
+    refresh(0);
+    </script>
+</body>
+
+</html>
