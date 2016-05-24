@@ -54,7 +54,10 @@
                 var eachDate = new Date(each.start_time);
                 if (Math.floor((eachDate - firstDate) / 86400000) === daydiff) {
                     if (!each.title.match(/lunch/i)) {
-                        timetable.addEvent(each.title + " @" + eachDate.getHours() + ":" + eachDate.getMinutes(), each.location.name, eachDate, new Date(each.end_time));
+                        var endTime = new Date(each.end_time);
+                        if(eachDate !== endTime) {
+                            timetable.addEvent(each.title + " @" + eachDate.getHours() + ":" + eachDate.getMinutes(), each.location.name, eachDate, endTime);
+                        }
                     }
                 }
             });
