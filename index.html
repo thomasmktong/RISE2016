@@ -55,7 +55,7 @@
                 if (Math.floor((eachDate - firstDate) / 86400000) === daydiff) {
                     if (!each.title.match(/lunch/i)) {
                         var endTime = new Date(each.end_time);
-                        if(eachDate !== endTime) {
+                        if(eachDate.getTime() !== endTime.getTime()) {
                             timetable.addEvent(each.title + " @" + eachDate.getHours() + ":" + eachDate.getMinutes(), each.location.name, eachDate, endTime);
                         }
                     }
